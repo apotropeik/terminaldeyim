@@ -1,78 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Terminaldeyim</title>
 
 <style>
+
 body{
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  background:#f5f5f7;
-  margin:0;
-  padding:20px;
-  max-width:700px;
-  margin:auto;
+    font-family: -apple-system,BlinkMacSystemFont,sans-serif;
+    background:#f5f5f7;
+    margin:0;
+    padding:20px;
+    max-width:700px;
+    margin:auto;
 }
 
 h1{
-  margin-bottom:4px;
+    margin-bottom:5px;
 }
 
 .sub{
-  opacity:.6;
-  margin-bottom:20px;
+    opacity:.6;
+    margin-bottom:20px;
 }
 
 .card{
-  background:white;
-  padding:16px;
-  border-radius:18px;
-  margin-bottom:16px;
-  box-shadow:0 2px 10px rgba(0,0,0,.05);
+    background:white;
+    padding:16px;
+    border-radius:18px;
+    margin-bottom:16px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
 }
 
-input,button{
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  font-size:16px;
-  box-sizing:border-box;
+input{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    box-sizing:border-box;
+    font-size:16px;
 }
 
 button{
-  background:black;
-  color:white;
-  border:none;
-  cursor:pointer;
+    width:100%;
+    padding:14px;
+    margin-top:12px;
+    border:none;
+    border-radius:12px;
+    background:black;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
 }
 
 button:hover{
-  opacity:.9;
-}
-
-.muted{
-  opacity:.6;
-  font-size:14px;
+    opacity:.9;
 }
 
 .entry{
-  padding:12px 0;
-  border-bottom:1px solid #eee;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
 }
 
 .entry:last-child{
-  border-bottom:none;
+    border-bottom:none;
+}
+
+.muted{
+    opacity:.6;
+    font-size:14px;
 }
 
 .overlap{
-  background:#fff8e7;
-  padding:10px;
-  border-radius:12px;
-  margin-top:10px;
+    background:#fff4d6;
+    padding:10px;
+    border-radius:12px;
+    margin-top:10px;
 }
+
 </style>
 </head>
 
@@ -93,7 +100,7 @@ button:hover{
 
 <input id="note" placeholder="Not (opsiyonel)">
 
-<button onclick="saveEntry()">Kaydet</button>
+<button id="saveBtn">Kaydet</button>
 
 <div id="msg" class="muted"></div>
 
@@ -114,129 +121,183 @@ button:hover{
 const API_URL = "https://script.google.com/macros/s/AKfycby4UxHjaW9-rXiaavhWbgcaunJXzAic3isZK-KBbDgDUtDlUodbcLtWHR0vyLMT17Y8/exec";
 
 function formatDate(iso){
-  const d = new Date(iso);
 
-  return d.toLocaleString("tr-TR",{
-    hour:"2-digit",
-    minute:"2-digit",
-    day:"2-digit",
-    month:"2-digit"
-  });
+    const d = new Date(iso);
+
+    return d.toLocaleString("tr-TR",{
+        day:"2-digit",
+        month:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit"
+    });
 }
 
 async function saveEntry(){
 
-  const name = document.getElementById("name").value.trim();
-  const terminal = document.getElementById("terminal").value.trim();
-  const start = document.getElementById("start").value;
-  const duration = document.getElementById("duration").value;
-  const note = document.getElementById("note").value.trim();
+    const name =
+        document.getElementById("name").value.trim();
 
-  if(!name || !start || !duration){
-    document.getElementById("msg").innerText =
-      "İsim, saat ve süre gerekli.";
-    return;
-  }
+    const terminal =
+        document.getElementById("terminal").value.trim();
 
-  const payload = {
-    action:"add",
-    name:name,
-    terminal:terminal,
-    start_at:new Date(start).toISOString(),
-    duration_min:Number(duration),
-    note:note
-  };
+    const start =
+        document.getElementById("start").value;
 
-  const res = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify(payload)
-  });
+    const duration =
+        document.getElementById("duration").value;
 
-  const data = await res.json();
+    const note =
+        document.getElementById("note").value.trim();
 
-  if(data.ok){
-    document.getElementById("msg").innerText =
-      "Kaydedildi 👍";
+    if(!name || !start || !duration){
 
-    loadEntries();
-  } else {
-    document.getElementById("msg").innerText =
-      "Hata oluştu.";
-  }
+        document.getElementById("msg").innerText =
+            "İsim, saat ve süre gerekli.";
+
+        return;
+    }
+
+    const payload = {
+        action:"add",
+        name:name,
+        terminal:terminal,
+        start_at:new Date(start).toISOString(),
+        duration_min:Number(duration),
+        note:note
+    };
+
+    try{
+
+        const res = await fetch(API_URL,{
+            method:"POST",
+            body:JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if(data.ok){
+
+            document.getElementById("msg").innerText =
+                "Kaydedildi 👍";
+
+            loadEntries();
+
+        }else{
+
+            document.getElementById("msg").innerText =
+                "Hata oluştu.";
+        }
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById("msg").innerText =
+            "Bağlantı hatası.";
+    }
 }
 
 async function loadEntries(){
 
-  const res = await fetch(API_URL + "?action=list");
-  const data = await res.json();
+    try{
 
-  const list = document.getElementById("list");
-  const overlaps = document.getElementById("overlaps");
+        const res =
+            await fetch(API_URL + "?action=list");
 
-  list.innerHTML = "";
-  overlaps.innerHTML = "";
+        const data = await res.json();
 
-  const entries = data.data || [];
+        const entries = data.data || [];
 
-  entries.forEach(e => {
+        const list =
+            document.getElementById("list");
 
-    const div = document.createElement("div");
+        const overlaps =
+            document.getElementById("overlaps");
 
-    div.className = "entry";
+        list.innerHTML = "";
+        overlaps.innerHTML = "";
 
-    div.innerHTML = `
-      <b>${e.name}</b>
-      ${e.terminal ? " - " + e.terminal : ""}
-      <div class="muted">
-        ${formatDate(e.start_at)}
-        →
-        ${formatDate(e.end_at)}
-      </div>
-      ${e.note ? `<div>${e.note}</div>` : ""}
-    `;
+        entries.forEach(e=>{
 
-    list.appendChild(div);
-  });
+            const div =
+                document.createElement("div");
 
-  for(let i=0;i<entries.length;i++){
+            div.className = "entry";
 
-    for(let j=i+1;j<entries.length;j++){
+            div.innerHTML = `
+                <b>${e.name}</b>
+                ${e.terminal ? " - " + e.terminal : ""}
+                <div class="muted">
+                    ${formatDate(e.start_at)}
+                    →
+                    ${formatDate(e.end_at)}
+                </div>
+                ${e.note ? `<div>${e.note}</div>` : ""}
+            `;
 
-      const a = entries[i];
-      const b = entries[j];
+            list.appendChild(div);
+        });
 
-      const startA = new Date(a.start_at).getTime();
-      const endA = new Date(a.end_at).getTime();
+        for(let i=0;i<entries.length;i++){
 
-      const startB = new Date(b.start_at).getTime();
-      const endB = new Date(b.end_at).getTime();
+            for(let j=i+1;j<entries.length;j++){
 
-      const overlapStart = Math.max(startA,startB);
-      const overlapEnd = Math.min(endA,endB);
+                const a = entries[i];
+                const b = entries[j];
 
-      if(overlapStart < overlapEnd){
+                const startA =
+                    new Date(a.start_at).getTime();
 
-        const mins =
-          Math.round((overlapEnd - overlapStart)/60000);
+                const endA =
+                    new Date(a.end_at).getTime();
 
-        const div = document.createElement("div");
+                const startB =
+                    new Date(b.start_at).getTime();
 
-        div.className = "overlap";
+                const endB =
+                    new Date(b.end_at).getTime();
 
-        div.innerHTML =
-          `<b>${a.name}</b> ↔ <b>${b.name}</b><br>
-          ${mins} dk çakışma`;
+                const overlapStart =
+                    Math.max(startA,startB);
 
-        overlaps.appendChild(div);
-      }
+                const overlapEnd =
+                    Math.min(endA,endB);
+
+                if(overlapStart < overlapEnd){
+
+                    const mins =
+                        Math.round(
+                            (overlapEnd-overlapStart)/60000
+                        );
+
+                    const div =
+                        document.createElement("div");
+
+                    div.className = "overlap";
+
+                    div.innerHTML =
+                        `<b>${a.name}</b> ↔ <b>${b.name}</b><br>${mins} dk çakışma`;
+
+                    overlaps.appendChild(div);
+                }
+            }
+        }
+
+        if(!overlaps.innerHTML){
+
+            overlaps.innerHTML =
+                `<div class="muted">Şimdilik çakışma yok.</div>`;
+        }
+
+    }catch(err){
+
+        console.error(err);
     }
-  }
-
-  if(!overlaps.innerHTML){
-    overlaps.innerHTML =
-      `<div class="muted">Şimdilik çakışma yok.</div>`;
-  }
 }
+
+document
+    .getElementById("saveBtn")
+    .addEventListener("click",saveEntry);
 
 loadEntries();
 
